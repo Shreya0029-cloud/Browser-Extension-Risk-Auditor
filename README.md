@@ -1,194 +1,526 @@
-# Browser Extension Permission Risk Auditor
+🛡️ Browser Extension Risk Auditor
 
-[![GitHub Pages](https://img.shields.io/badge/Live_Dashboard-GitHub_Pages-2ea44f?style=for-the-badge&logo=github)](https://Shivamkaushik233.github.io/browser-extension-risk-auditor/)
-[![Render Deploy](https://img.shields.io/badge/Deploy_to-Render-46E3B7?style=for-the-badge&logo=render)](https://render.com)
+<p align="center">
+  <strong>Intelligent Browser Extension Security & Permission Risk Analysis Platform</strong>
+</p>
 
-- 🌐 **Live Interactive Dashboard:** [https://Shivamkaushik233.github.io/browser-extension-risk-auditor/](https://Shivamkaushik233.github.io/browser-extension-risk-auditor/)
-- 🚀 **Full-Stack Web Service (Render):** [https://browser-extension-risk-auditor.onrender.com/](https://browser-extension-risk-auditor.onrender.com/)
-- 💻 **Source Code Repository:** [https://github.com/Shivamkaushik233/browser-extension-risk-auditor](https://github.com/Shivamkaushik233/browser-extension-risk-auditor)
+<p align="center">
+  <a href="https://browser-extension-risk-auditor.onrender.com/">🌐 Live Demo</a> •
+  <a href="https://github.com/Shreya0029-cloud/Browser-Extension-Risk-Auditor">💻 GitHub Repository</a>
+</p>
 
-A full-stack implementation of the project described in *Review-I: Browser
-Extension Permission Risk Auditor* (BCSE410L, Shivam Kaushik, 23BCE0058) -
-a Chrome (Manifest V3) extension that scores every extension installed in
-your browser, using declared permissions **and** observed network
-behavior, and re-checks them over time so a silent permission increase
-after an update actually gets noticed.
+<p align="center">
+  <img src="https://img.shields.io/badge/Platform-Google%20Chrome-blue?logo=googlechrome" />
+  <img src="https://img.shields.io/badge/Manifest-V3-green" />
+  <img src="https://img.shields.io/badge/Frontend-React-61DAFB?logo=react" />
+  <img src="https://img.shields.io/badge/Backend-Node.js-339933?logo=nodedotjs" />
+  <img src="https://img.shields.io/badge/API-Express-black?logo=express" />
+  <img src="https://img.shields.io/badge/Database-PostgreSQL-4169E1?logo=postgresql" />
+</p>
 
-This repo implements every objective from Section 2.3 of the review doc:
+🚀 Live Application
 
-| # | Objective | Where it's implemented |
-|---|---|---|
-| 1 | List installed extensions + permissions via the browser's own API | `extension/src/background.js` → `chrome.management.getAll()` |
-| 2 | Weighted permission risk score | `server/src/scoring/weights.js` + `scoreEngine.js` |
-| 3 | Runtime signal (network domains contacted) | `extension/src/background.js` (`chrome.webRequest`) |
-| 4 | One Composite Risk Score + plain-language reason | `scoreEngine.js` → `scoreExtension()` |
-| 5 | Periodic re-check to catch silent permission increases | `chrome.alarms` in `background.js`, `previous`/delta in `POST /api/scan` |
+Live Interactive Dashboard:
+https://browser-extension-risk-auditor.onrender.com/
 
-## Architecture
+Source Code:
+https://github.com/Shreya0029-cloud/Browser-Extension-Risk-Auditor
 
-```
-Chrome (Manifest V3)                     Express API                PostgreSQL
-┌───────────────────────┐   POST /api/scan   ┌───────────────┐   ┌──────────────────────────┐
-│ background.js          │ ─────────────────▶ │ scoreEngine.js │──▶│ extension_risk_history    │
-│  chrome.management     │                     │ (weights.js)   │   │ (one row per scan)        │
-│  chrome.webRequest     │ ◀───────────────── │               │◀──│                           │
-│  chrome.alarms         │   GET /api/extensions              └──────────────────────────┘
-└──────────┬─────────────┘
-           │ chrome.storage.local (cache)
-           ▼
-┌───────────────────────┐
-│ popup.html / options.html (React + Vite) │
-│  ranked list · score breakdown · history charts │
-└───────────────────────┘
-```
+The application analyzes browser extension permissions, evaluates potential security risks, and provides risk assessments to help users understand the security implications of their installed extensions.
 
-This matches Section 6/7 of the review doc: React (Vite) frontend rendered
-as the extension's popup/options page, a Node.js + Express API running the
-scoring formula, and PostgreSQL storing `extension_risk_history`.
+📌 Project Overview
 
-## Project layout
+Browser extensions enhance productivity and browser functionality, but they can also introduce security and privacy risks through excessive permissions, potentially suspicious behavior, and access to sensitive browser resources.
 
-```
-browser-extension-risk-auditor/
-├── server/            Express API + PostgreSQL scoring backend
-│   ├── src/
-│   │   ├── scoring/   weights.js, scoreEngine.js (+ unit tests)
-│   │   ├── routes/    scan.js, extensions.js, health.js
-│   │   ├── db.js, migrate.js
-│   │   └── db/schema.sql
-│   └── package.json
-├── extension/         Manifest V3 Chrome extension
+The Browser Extension Risk Auditor is a full-stack security assessment platform designed to identify and evaluate these risks.
+
+Built using a Chrome Manifest V3 extension, React, Node.js, Express, and PostgreSQL, the system combines permission-based analysis with runtime network observations to generate a composite risk score for browser extensions.
+
+The platform also maintains historical scan information to help identify changes in extension permissions and risk levels over time.
+
+🎯 Key Objectives
+
+Identify installed browser extensions and their declared permissions.
+
+Evaluate permission-based security risks using a weighted scoring engine.
+
+Observe eligible runtime network activity.
+
+Generate composite risk scores with understandable explanations.
+
+Maintain historical scan records.
+
+Highlight changes that may indicate increased extension risk.
+
+✨ Key Features
+
+1. Browser Extension Inspection
+
+Detect installed browser extensions using Chrome Management APIs.
+
+Retrieve extension metadata and declared permissions.
+
+Inspect host permissions and permission combinations.
+
+Present extension information through an intuitive interface.
+
+2. Intelligent Risk Scoring Engine
+
+Assign weighted values to browser permissions.
+
+Evaluate potentially excessive permission requests.
+
+Calculate normalized permission risk scores.
+
+Incorporate eligible runtime network observations.
+
+Generate composite risk scores between 0 and 100.
+
+3. Runtime Network Monitoring
+
+Observe eligible network requests using Chrome WebRequest APIs.
+
+Identify distinct domains contacted by extension contexts.
+
+Apply runtime risk adjustments based on observed activity.
+
+Combine static permission analysis with runtime signals.
+
+4. Security Dashboard
+
+View installed extensions and their risk levels.
+
+Explore permission-based risk assessments.
+
+Understand score breakdowns.
+
+Identify extensions requiring additional attention.
+
+5. Historical Risk Tracking
+
+Store scan results with timestamps.
+
+Maintain extension risk history.
+
+Compare current and previous assessments.
+
+Help identify potential permission changes after extension updates.
+
+6. Backend API and Database
+
+RESTful API built using Node.js and Express.
+
+PostgreSQL integration for persistent scan history.
+
+Database migration support.
+
+Health-check endpoint.
+
+Modular backend architecture.
+
+🏗️ System Architecture
+
+The platform follows a modular architecture consisting of a Chrome extension, React-based interface, Express backend, scoring engine, and PostgreSQL database.
+
+                  BROWSER EXTENSION
+                         |
+                         |
+              Chrome Management API
+              Chrome WebRequest API
+              Chrome Alarms API
+                         |
+                         |
+                  Extension Layer
+                         |
+                  React + Vite UI
+                         |
+                         |
+                   REST API
+                         |
+                  Node.js + Express
+                         |
+                         |
+                  Risk Scoring Engine
+                         |
+              Permission Risk Analysis
+              Runtime Risk Adjustment
+              Composite Risk Calculation
+                         |
+                         |
+                    PostgreSQL
+                         |
+                Historical Scan Data
+                         |
+                         |
+                  Security Dashboard
+
+Architecture Components
+
+Component
+
+Responsibility
+
+Chrome Extension
+
+Collects extension metadata and eligible runtime signals
+
+React + Vite
+
+Provides the popup and dashboard interface
+
+Express API
+
+Handles requests and scan processing
+
+Risk Scoring Engine
+
+Calculates permission and composite risk scores
+
+PostgreSQL
+
+Stores historical risk assessments
+
+Chrome Alarms
+
+Supports periodic re-evaluation
+
+🛠️ Technology Stack
+
+Frontend
+
+React.js
+
+JavaScript
+
+Vite
+
+HTML5
+
+CSS3
+
+Browser Extension
+
+Chrome Extensions API
+
+Manifest V3
+
+Chrome Management API
+
+Chrome WebRequest API
+
+Chrome Storage API
+
+Chrome Alarms API
+
+Backend
+
+Node.js
+
+Express.js
+
+REST APIs
+
+Database
+
+PostgreSQL
+
+SQL
+
+Database migrations
+
+Development and Deployment
+
+Git and GitHub
+
+Docker Compose
+
+Render
+
+GitHub Actions
+
+📂 Project Structure
+
+Browser-Extension-Risk-Auditor/
+│
+├── .github/
+│   └── workflows/
+│
+├── extension/
 │   ├── manifest.json
-│   ├── src/background.js         service worker
-│   ├── src/popup/                popup UI (React)
-│   ├── src/options/               full dashboard (React)
-│   ├── src/shared/                api client, design tokens, weight descriptions
-│   └── vite.config.js
-├── docker-compose.yml  optional local Postgres
+│   ├── src/
+│   │   ├── background.js
+│   │   ├── popup/
+│   │   ├── options/
+│   │   └── shared/
+│   ├── vite.config.js
+│   └── package.json
+│
+├── server/
+│   ├── src/
+│   │   ├── scoring/
+│   │   │   ├── weights.js
+│   │   │   ├── scoreEngine.js
+│   │   │   └── scoreEngine.test.js
+│   │   │
+│   │   ├── routes/
+│   │   │   ├── scan.js
+│   │   │   ├── extensions.js
+│   │   │   └── health.js
+│   │   │
+│   │   ├── db/
+│   │   │   └── schema.sql
+│   │   │
+│   │   ├── db.js
+│   │   ├── migrate.js
+│   │   └── index.js
+│   │
+│   └── package.json
+│
+├── docker-compose.yml
+├── package.json
+├── render.yaml
+├── .gitignore
 └── README.md
-```
 
-## Running it
+⚙️ Installation and Setup
 
-### 1. Database
+Follow these instructions to run the project locally.
 
-Either run Postgres via Docker:
+Prerequisites
 
-```bash
+Make sure you have installed:
+
+Node.js (LTS recommended)
+
+npm
+
+Google Chrome
+
+Docker Desktop (optional, for local PostgreSQL)
+
+Git
+
+1. Clone the Repository
+
+git clone https://github.com/Shreya0029-cloud/Browser-Extension-Risk-Auditor.git
+
+cd Browser-Extension-Risk-Auditor
+
+2. Configure the Database
+
+You can use Docker Compose to start the PostgreSQL service:
+
 docker compose up -d
-```
 
-...or point `server/.env` at any existing PostgreSQL instance (see
-`server/.env.example`).
+Alternatively, configure an existing PostgreSQL database through the backend environment variables.
 
-### 2. Backend API
+3. Configure and Start the Backend
 
-```bash
 cd server
-cp .env.example .env      # edit if your DB isn't the docker-compose default
 npm install
-npm run migrate           # creates extension_risk_history
-npm run dev                # http://localhost:4000
-```
 
-Sanity check: `curl http://localhost:4000/api/health` should return
-`{"status":"ok","db":"connected"}`.
+Create your environment configuration file:
 
-Run the scoring-engine unit tests any time with `npm test` (they don't
-need a database - pure functions in, JSON out).
+cp .env.example .env
 
-### 3. Extension
+Update the database connection details in .env.
 
-```bash
+Run the database migration:
+
+npm run migrate
+
+Start the development server:
+
+npm run dev
+
+The backend API should be available at:
+
+http://localhost:4000
+
+Verify the API health:
+
+http://localhost:4000/api/health
+
+4. Build the Chrome Extension
+
+Open another terminal:
+
 cd extension
 npm install
-npm run build              # outputs to extension/dist
-```
+npm run build
 
-Then in Chrome:
+The production build will be generated in:
 
-1. Go to `chrome://extensions`.
-2. Turn on **Developer mode** (top right).
-3. Click **Load unpacked** and select `extension/dist`.
-4. Click the extension's icon to open the popup, or right-click it →
-   **Options** for the full dashboard.
+extension/dist/
 
-The first install triggers an automatic scan a few seconds after load;
-after that, use **Scan now** in the popup or **Rescan all** in the
-dashboard, or wait for the built-in 6-hour periodic re-check
-(`chrome.alarms`, Objective 5).
+5. Load the Extension in Google Chrome
 
-If your API isn't on `http://localhost:4000`, open the dashboard →
-gear icon → set the **Backend API URL**.
+Open Google Chrome.
 
-## The scoring formula (Section 6, Step 3-5)
+Navigate to chrome://extensions.
 
-`server/src/scoring/weights.js` assigns each Chrome permission a weight
-from 1 (low blast radius: `storage`, `alarms`) to 10 (critical: `debugger`,
-`proxy`, `nativeMessaging`, `webRequestBlocking`), with the weights and
-their justification tied directly to the papers in the literature survey
-(Section 3) - see the comments at the top of that file for the mapping
-from finding → weight tier.
+Enable Developer mode.
 
-- **Permission score (0-100):** sum of weights for declared `permissions`
-  and the worst `host_permissions` pattern (an `<all_urls>` grant is
-  capped so it can't be diluted by also listing narrower patterns, and a
-  pile of narrow, specific-origin permissions can't out-score one
-  `<all_urls>` either), normalized against a realistic "genuinely
-  over-privileged extension" baseline.
-- **Runtime adjustment (0-25):** +5 for every distinct domain the
-  extension's own background context contacted that isn't on a short
-  known-benign infra allowlist (`scoreEngine.js`), capped at 25 - grounded
-  in Singh et al. (2025)'s finding that minimal declared permissions can
-  still enable real data exfiltration, so this signal is additive, not a
-  discount on the permission score.
-- **Composite score:** `permissionScore + runtimeAdjustment`, clamped to
-  0-100. Labeled **Low** (<40) / **Medium** (40-69) / **High** (≥70).
+Click Load unpacked.
 
-Every score, its full breakdown, and the domains observed at scan time
-are written to `extension_risk_history` with a timestamp, so
-`GET /api/extensions/:id/history` can show how a specific extension's
-score moved after each update - the dashboard's line chart is a direct
-answer to Objective 5 ("a permission review done once... doesn't catch a
-scope increase that arrives in an update six months later").
+Select the generated extension/dist folder.
 
-## Known limitations (stated, not hidden)
+Open the extension from the Chrome toolbar.
 
-- **Runtime attribution is best-effort.** `chrome.webRequest` can only
-  reliably attribute a network request to an extension when that
-  request's `initiator` is the extension's own background/service-worker
-  context (`chrome-extension://<id>`). A request made by a content script
-  injected into a normal page shows the *page's* origin as the initiator,
-  not the extension's - there's no public WebExtension API that gives a
-  third-party extension a fully general way to attribute that traffic.
-  This is a real constraint of building on top of public browser APIs,
-  and it's why the runtime signal is described as a "lightweight
-  adjustment," not a full network audit, in the original proposal.
-- **Service workers are non-persistent.** Manifest V3 background scripts
-  can be suspended when idle, so `chrome.webRequest` observation only
-  covers domains contacted while the service worker happens to be
-  active. The periodic alarm and the declared-permission score (which
-  doesn't depend on the worker being awake) are what make the tool useful
-  even given this.
-- **Chrome/Manifest V3 only**, per the scope in Section 2.2 of the review
-  doc. Firefox/Edge support, mentioned there as a "natural later
-  extension," would mean swapping `chrome.management`/`chrome.webRequest`
-  for the WebExtensions equivalents in `background.js` - the scoring
-  engine and API are already browser-agnostic.
-- **The known-benign domain list is small and manual** (`scoreEngine.js`),
-  intentionally - it exists so extremely common infrastructure doesn't
-  drown out genuinely novel domains, not as a serious allowlist/reputation
-  system. A production version would want a real domain-reputation source
-  instead of a hardcoded list.
+The extension can now be tested in your local browser.
 
-## Suggested next steps (beyond this review)
+🧠 Risk Scoring Methodology
 
-Matches the "later reviews" framing in Section 8 of the proposal:
+The platform combines permission-based analysis and runtime observations to produce a composite risk assessment.
 
-- Package the extension for the Chrome Web Store (currently loaded
-  unpacked for development, per Section 7's deployment row).
-- Add authentication so `extension_risk_history` can be scoped per user
-  if this ever runs against more than one person's browser.
-- Replace the static known-benign domain list with a real reputation
-  lookup.
-- Firefox/Edge builds via `webextension-polyfill`.
+1. Permission Risk Score
+
+Each permission is assigned a weight based on its potential security impact.
+
+Examples of permissions requiring careful evaluation include:
+
+debugger
+
+proxy
+
+nativeMessaging
+
+webRequestBlocking
+
+Broad host permissions such as <all_urls>
+
+The scoring engine evaluates declared permissions and host access patterns to calculate a normalized permission risk score.
+
+2. Runtime Risk Adjustment
+
+The system incorporates eligible network activity observations.
+
+Distinct domains contacted by an extension's own background or service-worker context can contribute additional risk points.
+
+The runtime adjustment is capped at 25 points.
+
+3. Composite Risk Score
+
+The final score combines permission risk and runtime adjustment:
+
+Composite Risk Score =
+Permission Risk Score + Runtime Risk Adjustment
+
+The result is clamped between 0 and 100.
+
+Risk Classification
+
+Score
+
+Risk Level
+
+Below 40
+
+Low
+
+40–69
+
+Medium
+
+70–100
+
+High
+
+The scoring methodology is intended as a security assessment aid, not a definitive determination that an extension is malicious.
+
+🔌 API Endpoints
+
+The backend exposes REST endpoints for extension scanning, retrieving assessments, and checking service health.
+
+Method
+
+Endpoint
+
+Purpose
+
+GET
+
+/api/health
+
+Check backend and database health
+
+POST
+
+/api/scan
+
+Submit extension scan information
+
+GET
+
+/api/extensions
+
+Retrieve extension assessment information
+
+GET
+
+/api/extensions/:id/history
+
+Retrieve historical scan information
+
+🧪 Testing
+
+The backend includes unit tests for the scoring engine.
+
+Run the tests from the server directory:
+
+cd server
+npm test
+
+The scoring tests validate the risk calculation logic without requiring a database connection.
+
+🔐 Security Considerations and Limitations
+
+Runtime network attribution depends on browser-provided request metadata.
+
+Requests originating from content scripts may not always be attributable directly to an extension.
+
+Manifest V3 service workers can become inactive when idle, which limits continuous runtime observation.
+
+The known-benign domain list is intentionally limited and should not be treated as a comprehensive reputation database.
+
+The current implementation focuses on Google Chrome and Manifest V3.
+
+Risk scores are indicators for further investigation, not proof of malicious behavior.
+
+🚀 Future Enhancements
+
+Integrate domain reputation and threat intelligence services.
+
+Expand browser compatibility to Firefox and Microsoft Edge.
+
+Improve runtime behavior analysis.
+
+Introduce user authentication and account-specific scan history.
+
+Add advanced historical analytics and risk trend visualizations.
+
+Explore machine-learning-based anomaly detection.
+
+Prepare the extension for Chrome Web Store distribution.
+
+🌐 Deployment
+
+The backend and interactive web application are deployed using Render.
+
+Live Application:
+https://browser-extension-risk-auditor.onrender.com/
+
+GitHub Repository:
+https://github.com/Shreya0029-cloud/Browser-Extension-Risk-Auditor
+
+Note: The web dashboard and the locally installed Chrome extension have different execution environments. Browser extension inspection requires the extension to be installed in a compatible Chrome browser.
+
+👩‍💻 Author
+
+GitHub: Shreya0029-cloud
+
+Project Repository: Browser Extension Risk Auditor
+
+<p align="center">
+  <strong>Built to make browser extension security more transparent, understandable, and accessible.</strong>
+</p>
