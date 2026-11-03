@@ -1,0 +1,27 @@
+{
+  "name": "browser-extension-risk-auditor",
+  "version": "1.0.0",
+  "description": "Browser Extension Permission Risk Auditor - Chrome MV3 Extension, Scoring API & Live Dashboard",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "install:all": "npm install && cd extension && npm install && cd ../server && npm install",
+    "build": "cd extension && npm install && npm run build && cd ../server && npm install",
+    "build:extension": "cd extension && npm install && npm run build",
+    "start": "node server/src/index.js",
+    "dev:server": "cd server && npm run dev",
+    "test": "cd server && npm test"
+  },
+  "keywords": [
+    "chrome-extension",
+    "permission-auditor",
+    "security",
+    "risk-assessment",
+    "manifest-v3",
+    "vite",
+    "react",
+    "express"
+  ],
+  "author": "Shivam Kaushik (23BCE0058)",
+  "license": "MIT"
+}
